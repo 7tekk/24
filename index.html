@@ -1,22 +1,53 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Server Hello World: Static Website</title>
-  </head>
-  <body>
-    <h2>Embedded YouTube Video</h2>
-    <iframe
-      width="640"
-      height="360"
-      src="https://rule34video.com/video/3825617/wanna-play-cat-and-mouse/?rnd=1760913436641"
-      frameborder="0"
-      allowfullscreen
-      ></iframe>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Video Search Embed</title>
+<style>
+  #results a { display: block; margin-bottom: 10px; }
+  iframe { margin-top: 20px; width: 640px; height: 360px; }
+</style>
+</head>
+<body>
+<h1>Search Videos</h1>
+<input type="text" id="search" placeholder="Enter search term">
+<button onclick="searchVideos()">Search</button>
 
-    <script>
-document.getElementById('myVideo').addEventListener('load', function() {
-  this.contentWindow.document.addEventListener('click', e => e.stopPropagation());
-});
+<div id="results"></div>
+<div id="player"></div>
+
+<script>
+const videos = [
+  { title: "Cat and Mouse", embed: "https://rule34video.com/embed/1981" },
+  { title: "Mouse Chase", embed: "https://rule34video.com/embed/1982" },
+  { title: "Fun Game", embed: "https://rule34video.com/embed/1983" }
+  // You can add more sample data or fetch from an API if allowed
+];
+
+function searchVideos() {
+  const query = document.getElementById("search").value.toLowerCase();
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+  
+  const filtered = videos.filter(v => v.title.toLowerCase().includes(query));
+  if (filtered.length === 0) {
+    resultsDiv.innerHTML = "No results found.";
+    return;
+  }
+
+  filtered.forEach(video => {
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = video.title;
+    link.onclick = () => showEmbed(video.embed);
+    resultsDiv.appendChild(link);
+  });
+}
+
+function showEmbed(embedUrl) {
+  const playerDiv = document.getElementById("player");
+  playerDiv.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+}
 </script>
-  </body>
+</body>
 </html>
