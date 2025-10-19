@@ -9,9 +9,14 @@
       width="640"
       height="360"
       src="https://rule34video.com/video/3825617/wanna-play-cat-and-mouse/?rnd=1760913436641"
-      sandbox="allow-scripts allow-same-origin allow-presentation"
       frameborder="0"
       allowfullscreen
       ></iframe>
+
+    <script>
+document.getElementById('myVideo').addEventListener('load', function() {
+  this.contentWindow.document.addEventListener('click', e => e.stopPropagation());
+});
+</script>
   </body>
 </html>
