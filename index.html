@@ -3,19 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple</title>
+  <title>Password Protected Page</title>
   <style>
     body {
       font-family: sans-serif;
       margin: 0;
-      padding: 0;
       background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Login screen */
+    #loginScreen {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 1em;
+      background-color: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
-    /* Top bar */
+    #loginScreen input {
+      padding: 0.5em;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #loginScreen button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #loginScreen button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Hidden until login */
+    #mainPage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
     header {
       width: 100%;
       background-color: #333;
@@ -38,11 +78,6 @@
       font-size: 1em;
       border-radius: 5px;
       cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    header button:hover {
-      background-color: #0056b3;
     }
 
     main {
@@ -53,7 +88,6 @@
       align-items: center;
     }
 
-    /* Video list dropdown */
     #videoList {
       display: none;
       flex-direction: column;
@@ -64,70 +98,3 @@
     }
 
     #videoList button {
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 0.5em;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    #videoList button:hover {
-      background-color: #e6f2ff;
-    }
-
-    video {
-      width: 80%;
-      max-width: 720px;
-      margin-top: 1em;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <button onclick="toggleList()">Show/Hide Videos</button>
-  </header>
-
-  <main>
-    <div id="videoList"></div>
-    <video id="videoPlayer" controls></video>
-  </main>
-
-  <script>
-    // Your video links go here
-    const videos = [
-      { title: "Sample Video 1", url: "https://eu-cdn09-prem.boomio-cdn.com/remote_control.php?time=1760950878&cv=e3fbf7b8ff0dbc266825a18db19c9df4&lr=8781000&cv2=be0e36c00e0a2d11d0de6fc7517e28e9&file=%2Fvideos%2F3652000%2F3652553%2F3652553_2160p.mp4&cv3=7b148ffed7e5ddccd7d2456825ccfe56&cv4=5982f2d876e4e3ce183160a5f6205eb2" },
-      { title: "Sample Video 2", url: "https://cdn.discordapp.com/attachments/1344817488801693707/1385301552918696068/7a26de48973892e46d434cb82cc3d67f.mov?ex=68f7ba9b&is=68f6691b&hm=5a7790a5287b694826ca3067e6a2ddf3fa704783770f4f1b95d552b207df0541&" },
-      { title: "Nature Clip", url: "https://www.w3schools.com/html/horse.mp4" }
-    ];
-
-    const listContainer = document.getElementById('videoList');
-    const player = document.getElementById('videoPlayer');
-
-    // Create buttons for each video link
-    videos.forEach(video => {
-      const btn = document.createElement('button');
-      btn.textContent = video.title;
-      btn.onclick = () => playVideo(video.url);
-      listContainer.appendChild(btn);
-    });
-
-    // Show/hide video list
-    function toggleList() {
-      listContainer.style.display =
-        listContainer.style.display === 'none' || listContainer.style.display === ''
-          ? 'flex'
-          : 'none';
-    }
-
-    // Load and play the selected video
-    function playVideo(url) {
-      player.src = url;
-      player.load();
-      player.play();
-    }
-  </script>
-</body>
-</html>
