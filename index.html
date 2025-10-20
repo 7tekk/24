@@ -3,27 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Video Player Input</title>
+  <title>Video Player with Top Menu</title>
   <style>
     body {
       font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1em;
-      padding: 2em;
-      background-color: #f5f5f5;
     }
-    input {
-      width: 60%;
-      padding: 0.5em;
-      font-size: 1em;
+
+    /* Top bar */
+    header {
+      width: 100%;
+      background-color: #333;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1em;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
     }
-    button {
+
+    header button {
+      background-color: #007bff;
+      border: none;
+      color: white;
       padding: 0.5em 1em;
       font-size: 1em;
+      border-radius: 5px;
       cursor: pointer;
+      transition: background 0.3s;
     }
+
+    header button:hover {
+      background-color: #0056b3;
+    }
+
+    main {
+      margin-top: 100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Video list dropdown */
+    #videoList {
+      display: none;
+      flex-direction: column;
+      gap: 0.5em;
+      margin-top: 1em;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #videoList button {
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #videoList button:hover {
+      background-color: #e6f2ff;
+    }
+
     video {
       width: 80%;
       max-width: 720px;
@@ -34,24 +86,47 @@
   </style>
 </head>
 <body>
-  <h1>Simple Video Player</h1>
+  <header>
+    <button onclick="toggleList()">Show/Hide Videos</button>
+  </header>
 
-  <input id="videoInput" type="text" placeholder="Enter video URL (e.g., https://example.com/video.mp4)" />
-  <button onclick="loadVideo()">Play Video</button>
-
-  <video id="videoPlayer" controls></video>
+  <main>
+    <div id="videoList"></div>
+    <video id="videoPlayer" controls></video>
+  </main>
 
   <script>
-    function loadVideo() {
-      const url = document.getElementById('videoInput').value.trim();
-      const player = document.getElementById('videoPlayer');
-      if (url) {
-        player.src = url;
-        player.load();
-        player.play();
-      } else {
-        alert("Please enter a valid video URL.");
-      }
+    // Your video links go here
+    const videos = [
+      { title: "Sample Video 1", url: "https://eu-cdn09-prem.boomio-cdn.com/remote_control.php?time=1760950878&cv=e3fbf7b8ff0dbc266825a18db19c9df4&lr=8781000&cv2=be0e36c00e0a2d11d0de6fc7517e28e9&file=%2Fvideos%2F3652000%2F3652553%2F3652553_2160p.mp4&cv3=7b148ffed7e5ddccd7d2456825ccfe56&cv4=5982f2d876e4e3ce183160a5f6205eb2" },
+      { title: "Sample Video 2", url: "https://www.w3schools.com/html/movie.mp4" },
+      { title: "Nature Clip", url: "https://www.w3schools.com/html/horse.mp4" }
+    ];
+
+    const listContainer = document.getElementById('videoList');
+    const player = document.getElementById('videoPlayer');
+
+    // Create buttons for each video link
+    videos.forEach(video => {
+      const btn = document.createElement('button');
+      btn.textContent = video.title;
+      btn.onclick = () => playVideo(video.url);
+      listContainer.appendChild(btn);
+    });
+
+    // Show/hide video list
+    function toggleList() {
+      listContainer.style.display =
+        listContainer.style.display === 'none' || listContainer.style.display === ''
+          ? 'flex'
+          : 'none';
+    }
+
+    // Load and play the selected video
+    function playVideo(url) {
+      player.src = url;
+      player.load();
+      player.play();
     }
   </script>
 </body>
