@@ -1,15 +1,58 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Server Hello World: Static Website</title>
-  </head>
-  <body>
-    <h2>Embedded YouTube Video</h2>
-    <video controls playsinline preload="metadata">
-  <source src="https://eu-cdn02-prem.boomio-cdn.com/remote_control.php?time=1760951712&cv=db6012a32e32a2c4af30925b0a9a1836&lr=3871125&cv2=818873f7e61804ad1a22f29496b81fed&file=%2Fvideos%2F3743000%2F3743065%2F3743065_1080p.mp4&cv3=7b148ffed7e5ddccd7d2456825ccfe56&cv4=19da42b86a9349d20b4abf61ee4e1649">
-</video>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Player Input</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      padding: 2em;
+      background-color: #f5f5f5;
+    }
+    input {
+      width: 60%;
+      padding: 0.5em;
+      font-size: 1em;
+    }
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    video {
+      width: 80%;
+      max-width: 720px;
+      margin-top: 1em;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Video Player</h1>
 
-</video>
+  <input id="videoInput" type="text" placeholder="Enter video URL (e.g., https://example.com/video.mp4)" />
+  <button onclick="loadVideo()">Play Video</button>
 
-  </body>
+  <video id="videoPlayer" controls></video>
+
+  <script>
+    function loadVideo() {
+      const url = document.getElementById('videoInput').value.trim();
+      const player = document.getElementById('videoPlayer');
+      if (url) {
+        player.src = url;
+        player.load();
+        player.play();
+      } else {
+        alert("Please enter a valid video URL.");
+      }
+    }
+  </script>
+</body>
 </html>
