@@ -3,13 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Password Protected Video Page</title>
+<title>Password Protected Video Player</title>
 <style>
+  * {
+    box-sizing: border-box;
+  }
+
   body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
   }
 
   /* Login screen */
@@ -20,23 +26,27 @@
     height: 100%;
     flex-direction: column;
     gap: 1em;
-    background-color: #f5f5f5;
+    background-color: #181818;
   }
 
   #loginScreen input {
-    padding: 0.5em;
+    padding: 0.7em 1em;
     font-size: 1em;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #252525;
+    color: white;
+    outline: none;
   }
 
   #loginScreen button {
-    padding: 0.5em 1em;
+    padding: 0.7em 1.5em;
     font-size: 1em;
-    border-radius: 5px;
+    border-radius: 6px;
     border: none;
     background-color: #007bff;
     color: white;
+    font-weight: bold;
     cursor: pointer;
   }
 
@@ -45,8 +55,9 @@
   }
 
   #errorMsg {
-    color: red;
+    color: #ff5252;
     display: none;
+    margin: 0;
   }
 
   /* Main page */
@@ -60,11 +71,11 @@
 
   header {
     width: 100%;
-    background-color: #333;
-    color: white;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #2e2e2e;
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap: 10px;
     padding: 1em;
     position: fixed;
     top: 0;
@@ -72,57 +83,118 @@
     z-index: 1000;
   }
 
-  header button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 0.5em 1em;
-    font-size: 1em;
-    border-radius: 5px;
+  .nav-btn {
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    color: #bbb;
+    padding: 0.6em 1.2em;
+    font-size: 0.95em;
+    border-radius: 6px;
     cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .nav-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
   }
 
   main {
-    margin-top: 100px;
+    margin-top: 90px;
     width: 100%;
+    max-width: 900px;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em;
+  }
+
+  .tab-content {
+    display: none;
+    width: 100%;
     flex-direction: column;
     align-items: center;
   }
 
-  #videoList {
-    display: none;
+  .tab-content.active {
+    display: flex;
+  }
+
+  /* Input bar for custom links */
+  .input-group {
+    display: flex;
+    width: 100%;
+    gap: 0.5em;
+    margin-bottom: 1em;
+  }
+
+  .input-group input {
+    flex: 1;
+    padding: 0.6em 1em;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background-color: #222;
+    color: white;
+  }
+
+  .input-group button {
+    padding: 0.6em 1.2em;
+    background-color: #28a745;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .video-list {
+    display: flex;
     flex-direction: column;
     gap: 0.5em;
-    margin-top: 1em;
-    width: 80%;
-    max-width: 600px;
+    width: 100%;
+    margin-bottom: 1.5em;
   }
 
-  #videoList button {
-    background-color: white;
-    border: 1px solid #ccc;
+  .video-list button {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    color: #e0e0e0;
     border-radius: 6px;
-    padding: 0.5em;
+    padding: 0.7em 1em;
+    text-align: left;
     cursor: pointer;
+    transition: background 0.2s;
   }
 
-  video {
-    width: 80%;
-    max-width: 720px;
-    margin-top: 1em;
-    border: 2px solid #ccc;
+  .video-list button:hover {
+    background-color: #2a2a2a;
+    border-color: #555;
+  }
+
+  /* Player container */
+  .player-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 1px solid #333;
     border-radius: 8px;
+    overflow: hidden;
+  }
+
+  video, iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 </style>
 </head>
 <body>
 
-
 <!-- Login Screen -->
 <div id="loginScreen">
-  <h2>Enter Password</h2>
-  <input type="password" id="passwordInput" placeholder="Password">
+  <h2>Protected Video Portal</h2>
+  <input type="password" id="passwordInput" placeholder="Enter password" onkeydown="if(event.key === 'Enter') checkPassword()">
   <button onclick="checkPassword()">Enter</button>
   <p id="errorMsg">Incorrect password</p>
 </div>
@@ -130,58 +202,142 @@
 <!-- Main Page -->
 <div id="mainPage">
   <header>
-    <button onclick="toggleList()">Show/Hide Videos</button>
+    <button class="nav-btn active" onclick="switchTab('directTab', this)">Direct MP4s</button>
+    <button class="nav-btn" onclick="switchTab('cloudTab', this)">Google / MEGA Cloud</button>
   </header>
 
   <main>
-    <div id="videoList"></div>
-    <video id="videoPlayer" controls></video>
+    <!-- Tab 1: Direct MP4 Videos -->
+    <div id="directTab" class="tab-content active">
+      <div id="directList" class="video-list"></div>
+      <div class="player-container">
+        <video id="directPlayer" controls></video>
+      </div>
+    </div>
+
+    <!-- Tab 2: Google Drive & MEGA -->
+    <div id="cloudTab" class="tab-content">
+      <div class="input-group">
+        <input type="text" id="cloudUrlInput" placeholder="Paste Google Drive or MEGA link here...">
+        <button onclick="playCustomCloudVideo()">Play</button>
+      </div>
+
+      <div id="cloudList" class="video-list"></div>
+      
+      <div class="player-container">
+        <iframe id="cloudFrame" allowfullscreen allow="autoplay"></iframe>
+      </div>
+    </div>
   </main>
 </div>
 
 <script>
-  // Password logic
+  // 1. Password Protection
   function checkPassword() {
     const password = document.getElementById('passwordInput').value;
     const errorMsg = document.getElementById('errorMsg');
 
-    if(password === 'nlgger') {
+    if(password === 'password123') { // Replace with your password
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
+      initLists();
     } else {
       errorMsg.style.display = 'block';
     }
   }
 
-  // Video list
-  const videos = [
-    { title: "nature Video 1", url: "https://eu-cdn03-prem.boomio-cdn.com/remote_control.php?file=rXIPKdwAnDjLQuhIub59VRGX9LC_Pj3RL4VKVlKCOZZkynu5nKwVzuheaS2PP9F-xnDNJhZ2FK-1OzJ7RN3CUjfsVANzqnDy4QpF7tronwGP3Mtib1ngyWNoEKw-onIruh2ZlpRrtjvlVr6lwwE2bQt4wC6POnClsIqHQSwAZFiAMYFdV8MFoWXCiMJR1wib1buf2P3S6TNGZKR5Kq_4a9YvsZhQ4PLi.mp4&acctoken=NjlmODMzOWRiNjVmYTM5NDJlYTUxYmJiZTE3NmFlMDcwZDQzODE3MmU4ODBlMDE5M2E0M2RmZjhmMmViYjU4OHwxNzg2NTg4MzUzfDI4NDY4NzV8cnVsZTM0dmlkZW8uY29tfDB8fDVmYjRjNWNjNThjYWIzYWUxMGQ0ZGUwY2Q0ZjA4YzAx" },
-    { title: "nature Video 1", url: "https://eu-cdn10-prem.boomio-cdn.com/remote_control.php?file=H3zUCqdFxCgAmCko7n40ABi8slo_RIF6FwhH7JrUAXWsTBZySNKSfOPKmeWLpCq_a4Pg3NVIhMaCF-olFGClZyQHXpQwfIuDYY1c3kH8V9UoiyP9QqyRbzGE1pmPJf_RI_BcF3laH2s0PWSpPs-VXvaQGXCliMviH6CZXZsDVq5wIEWZsYcaGAcfmrOoHgrE8ZWzhyhZav50uT4dxWPSgegCGx4-Qw.mp4&acctoken=YWZiMDlmYmIyYzYyMjg2NDY0NGYwN2RmNmQwOTVjMWQ3ODdmYmI5YjI3MTEwMDczMmI2OTA5OWM5OTA0M2EyOHwxNzg2NTg4MTc4fDQ4NTAwMHxydWxlMzR2aWRlby5jb218MHx8Njc1Yzg4YzEwMjVkNmRhOTdiNTE0YmVjOWE0ZDgxNjE" },
-    { title: "nature Video 1", url: "https://eu-cdn08-prem.boomio-cdn.com/remote_control.php?file=Z33LaRBdu273TfbJPZp60pV4Rh5BU_tw9L4zlKtdUcQiGQ5vVh4iza9hsterljkOzy4paoVHwOE6IpxfaNUnbi7Lctg6zXWMU7XvcfFuVSZ7wdfFFooOBmTmEM_Q7mEOWInR2Y-e9yogMclIG1D1cxDC_FOZmwSxihVDzcwjkTQtVtsfH6UXcNhei5fEsr7tSAli1ZR8onPaJr1_ZZvybmiHjQCEtBLU.mp4&acctoken=YmJhZmI5OTZlYzRlZGMwMTY3NDA4NjFkYzM0ZmY0ZmMyMzJhMTc5ZTM3NDM3OTBhODBlNDBkYWEwODViYTYzNHwxNzg2NTg4MTEwfDI3NzE4NzV8cnVsZTM0dmlkZW8uY29tfDB8fDczN2MwMzVlMDI5Yzg1NzMwNjc1YjY0ZTlkOGVjZDg4" },
-    { title: "nature Video 1", url: "" },
-    { title: "nature Video 1", url: "" },
+  // 2. Tab Navigation
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     
-    
-  ];
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
 
-  const listContainer = document.getElementById('videoList');
-  const player = document.getElementById('videoPlayer');
-
-  videos.forEach(video => {
-    const btn = document.createElement('button');
-    btn.textContent = video.title;
-    btn.onclick = () => playVideo(video.url);
-    listContainer.appendChild(btn);
-  });
-
-  function toggleList() {
-    listContainer.style.display = (listContainer.style.display === 'flex') ? 'none' : 'flex';
+    // Pause video playback when switching tabs
+    const directPlayer = document.getElementById('directPlayer');
+    directPlayer.pause();
   }
 
-  function playVideo(url) {
+  // 3. Video Sources Data
+  const directVideos = [
+    { title: "Nature Video 1", url: "https://eu-cdn03-prem.boomio-cdn.com/remote_control.php?file=rXIPKdwAnDjLQuhIub59VRGX9LC_Pj3RL4VKVlKCOZZkynu5nKwVzuheaS2PP9F-xnDNJhZ2FK-1OzJ7RN3CUjfsVANzqnDy4QpF7tronwGP3Mtib1ngyWNoEKw-onIruh2ZlpRrtjvlVr6lwwE2bQt4wC6POnClsIqHQSwAZFiAMYFdV8MFoWXCiMJR1wib1buf2P3S6TNGZKR5Kq_4a9YvsZhQ4PLi.mp4" },
+    { title: "Nature Video 2", url: "https://eu-cdn10-prem.boomio-cdn.com/remote_control.php?file=H3zUCqdFxCgAmCko7n40ABi8slo_RIF6FwhH7JrUAXWsTBZySNKSfOPKmeWLpCq_a4Pg3NVIhMaCF-olFGClZyQHXpQwfIuDYY1c3kH8V9UoiyP9QqyRbzGE1pmPJf_RI_BcF3laH2s0PWSpPs-VXvaQGXCliMviH6CZXZsDVq5wIEWZsYcaGAcfmrOoHgrE8ZWzhyhZav50uT4dxWPSgegCGx4-Qw.mp4" }
+  ];
+
+  const cloudVideos = [
+    { 
+      title: "Sample Google Drive Video", 
+      url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs/view" 
+    },
+    { 
+      title: "Sample MEGA Video", 
+      url: "https://mega.nz/folder/wvAxGawK#pO4--R6tL4oT-Q2fCcKE9g" 
+    }
+  ];
+
+  // 4. Formatter: Converts Standard Cloud Links into Embed Links
+  function formatEmbedUrl(url) {
+    if (!url) return '';
+    
+    // Convert Google Drive Links to /preview
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    // Convert MEGA Links to /embed/
+    if (url.includes('mega.nz')) {
+      if (url.includes('/embed/')) return url;
+      return url.replace('mega.nz/file/', 'mega.nz/embed/').replace('mega.nz/#!', 'mega.nz/embed/!');
+    }
+
+    return url;
+  }
+
+  // 5. Initialize Lists
+  function initLists() {
+    // Direct Videos
+    const directList = document.getElementById('directList');
+    directList.innerHTML = '';
+    directVideos.forEach(v => {
+      const btn = document.createElement('button');
+      btn.textContent = "▶ " + v.title;
+      btn.onclick = () => playDirectVideo(v.url);
+      directList.appendChild(btn);
+    });
+
+    // Cloud Videos
+    const cloudList = document.getElementById('cloudList');
+    cloudList.innerHTML = '';
+    cloudVideos.forEach(v => {
+      const btn = document.createElement('button');
+      btn.textContent = "☁ " + v.title;
+      btn.onclick = () => playCloudVideo(v.url);
+      cloudList.appendChild(btn);
+    });
+  }
+
+  // 6. Play Handlers
+  function playDirectVideo(url) {
+    const player = document.getElementById('directPlayer');
     player.src = url;
     player.load();
     player.play();
+  }
+
+  function playCloudVideo(url) {
+    const frame = document.getElementById('cloudFrame');
+    frame.src = formatEmbedUrl(url);
+  }
+
+  function playCustomCloudVideo() {
+    const input = document.getElementById('cloudUrlInput');
+    if (input.value.trim()) {
+      playCloudVideo(input.value.trim());
+    }
   }
 </script>
 </body>
