@@ -280,7 +280,7 @@
   function formatEmbedUrl(url) {
     if (!url) return '';
     
-    // Convert Google Drive Links to /preview
+    // Fix Google Drive Links
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
@@ -288,10 +288,11 @@
       }
     }
 
-    // Convert MEGA Links to /embed/
-    if (url.includes('mega.nz')) {
-      if (url.includes('/embed/')) return url;
-      return url.replace('mega.nz/file/', 'mega.nz/embed/').replace('mega.nz/#!', 'mega.nz/embed/!');
+    // Fix MEGA Links
+    if (url.includes('mega.nz') || url.includes('mega.io')) {
+      if (url.includes('/embed')) return url;
+      // Force change /file/ or /#! to /embed/
+      return url.replace('/file/', '/embed/').replace('/#!', '/embed/!');
     }
 
     return url;
