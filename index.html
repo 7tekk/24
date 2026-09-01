@@ -173,7 +173,7 @@
     searchList.innerHTML = '<p style="color: #bbb; padding: 1em;">Scraping results...</p>';
 
     // IMPORTANT: Replace THE-WEBSITE.com with the actual target URL
-    const targetUrl = `https://THE-WEBSITE.com/wp-admin/admin-ajax.php?action=bimber_search&bimber_term=${encodeURIComponent(query)}`;
+    const targetUrl = `https://sfmcompile.club/wp-admin/admin-ajax.php?action=bimber_search&bimber_term=${encodeURIComponent(query)}`;
     
     // We wrap the target URL in a free CORS proxy so GitHub Pages doesn't get blocked
     const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
