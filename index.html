@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Password Protected Video Player</title>
+<title>Protected Video Portal</title>
 <style>
   * { box-sizing: border-box; }
   body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #121212; color: #ffffff; }
@@ -32,7 +32,7 @@
   .video-list { display: flex; flex-direction: column; gap: 0.5em; width: 100%; margin-bottom: 1.5em; }
   .video-list button { background-color: #1e1e1e; border: 1px solid #333; color: #e0e0e0; border-radius: 6px; padding: 0.7em 1em; text-align: left; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 10px; }
   .video-list button:hover { background-color: #2a2a2a; border-color: #555; }
-  .video-list button img { width: 40px; height: 30px; object-fit: cover; border-radius: 4px; }
+  .video-list button img { width: 60px; height: 35px; object-fit: cover; border-radius: 4px; }
 
   .player-container { width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
   video, iframe { width: 100%; height: 100%; border: none; }
@@ -40,6 +40,7 @@
 </head>
 <body>
 
+<!-- Login Screen -->
 <div id="loginScreen">
   <h2>Protected Video Portal</h2>
   <input type="password" id="passwordInput" placeholder="Enter password" onkeydown="if(event.key === 'Enter') checkPassword()">
@@ -47,6 +48,7 @@
   <p id="errorMsg">Incorrect password</p>
 </div>
 
+<!-- Main Page -->
 <div id="mainPage">
   <header>
     <button class="nav-btn active" onclick="switchTab('directTab', this)">Direct MP4s</button>
@@ -55,6 +57,7 @@
   </header>
 
   <main>
+    <!-- Tab 1: Direct MP4 Videos -->
     <div id="directTab" class="tab-content active">
       <div id="directList" class="video-list"></div>
       <div class="player-container">
@@ -62,6 +65,7 @@
       </div>
     </div>
 
+    <!-- Tab 2: Google Drive & MEGA -->
     <div id="cloudTab" class="tab-content">
       <div class="input-group">
         <input type="text" id="cloudUrlInput" placeholder="Paste Google Drive or MEGA link here...">
@@ -73,15 +77,13 @@
       </div>
     </div>
 
+    <!-- Tab 3: Dynamic Web Search (JSON + HTML Parsing) -->
     <div id="searchTab" class="tab-content">
       <div class="input-group">
-        <input type="text" id="searchInput" placeholder="Search for videos on the target site..." onkeydown="if(event.key === 'Enter') performSearch()">
+        <input type="text" id="searchInput" placeholder="Search sfmcompile.club..." onkeydown="if(event.key === 'Enter') performSearch()">
         <button onclick="performSearch()">Search</button>
       </div>
       <div id="searchList" class="video-list"></div>
-      <div class="player-container">
-        <iframe id="searchPlayer" allowfullscreen allow="autoplay"></iframe>
-      </div>
     </div>
   </main>
 </div>
@@ -106,8 +108,9 @@
     document.getElementById(tabId).classList.add('active');
     btn.classList.add('active');
 
+    // Pause direct video when switching tabs
     const directPlayer = document.getElementById('directPlayer');
-    directPlayer.pause();
+    if (directPlayer) directPlayer.pause();
   }
 
   // 3. Hardcoded Video Sources Data
@@ -164,7 +167,7 @@
     }
   }
 
-  // 4. Dynamic Web Search Logic (No Backend Required)
+  // 4. Dynamic Web Search Logic (JSON + HTML Parsing)
   async function performSearch() {
     const query = document.getElementById('searchInput').value.trim();
     const searchList = document.getElementById('searchList');
@@ -172,32 +175,35 @@
     if (!query) return;
     searchList.innerHTML = '<p style="color: #bbb; padding: 1em;">Scraping results...</p>';
 
-    // IMPORTANT: Replace THE-WEBSITE.com with the actual target URL
+    // Target URL for sfmcompile.club
     const targetUrl = `https://sfmcompile.club/wp-admin/admin-ajax.php?action=bimber_search&bimber_term=${encodeURIComponent(query)}`;
     
-    // We wrap the target URL in a free CORS proxy so GitHub Pages doesn't get blocked
+    // Proxy to bypass GitHub Pages CORS restrictions
     const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
 
     try {
-      // Fetch the raw HTML through the proxy
       const response = await fetch(proxyUrl);
-      const htmlText = await response.text();
+      
+      // Parse the response as JSON
+      const jsonData = await response.json(); 
+      
+      // Extract the hidden HTML text from the JSON
+      const htmlText = jsonData.html; 
 
-      // Use the browser's built-in parser instead of a backend scraper
+      // Parse the extracted HTML text into real elements
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, 'text/html');
       
       const results = [];
       
-      // Find the specific elements in the returned HTML (Bimber theme classes)
-      const items = doc.querySelectorAll('article, .search-item, .bimber-ajax-search-item');
+      // Select the video cards based on the specific classes they use
+      const items = doc.querySelectorAll('article');
       
       items.forEach(element => {
-        const titleElement = element.querySelector('.entry-title, .title');
-        const linkElement = element.querySelector('a');
+        const titleElement = element.querySelector('.entry-title');
+        const linkElement = element.querySelector('.entry-title a') || element.querySelector('a');
         const imgElement = element.querySelector('img');
 
-        // Extract the text and links if they exist
         if (titleElement && linkElement) {
           results.push({
             title: titleElement.innerText.trim(),
@@ -214,22 +220,23 @@
         return;
       }
 
-      // Generate the buttons for the scraped results
+      // Generate the clickable buttons
       results.forEach(v => {
         const btn = document.createElement('button');
         let imgHtml = v.thumbnail ? `<img src="${v.thumbnail}" alt="thumb">` : '▶';
         btn.innerHTML = `${imgHtml} <span>${v.title}</span>`;
         
         btn.onclick = () => {
-          // Loads the scraped video page into the iframe
-          document.getElementById('searchPlayer').src = v.videoUrl; 
+          // Because the site uses X-Frame-Options: SAMEORIGIN, it blocks iframes.
+          // Opening it in a new tab guarantees the video page will successfully load.
+          window.open(v.videoUrl, '_blank'); 
         };
         searchList.appendChild(btn);
       });
 
     } catch (error) {
       console.error("Search failed:", error);
-      searchList.innerHTML = '<p style="color: #ff5252;">Error fetching results. The target site might be blocking the proxy.</p>';
+      searchList.innerHTML = '<p style="color: #ff5252;">Error fetching results.</p>';
     }
   }
 </script>
